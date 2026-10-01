@@ -2,6 +2,12 @@
 
 A price-comparison tool for Indian diagnostic lab tests. Search by test name and pincode to see which providers are available near you, and compare their true final prices (offer price + home collection fee).
 
+## 🔗 Live Demo
+
+**[https://medscanner-labs.onrender.com](https://medscanner-labs.onrender.com)**
+
+> Free tier — allow ~30 s on first load if the service has spun down.
+
 ---
 
 ## Features
