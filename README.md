@@ -64,7 +64,7 @@ In production, Express serves the built React app and handles all routes from a 
 
 ## Package Matching
 
-A lab package is returned when the searched test name appears in its `included_tests` array. For example, searching "Lipid Profile" returns the *Wellness Basic Package* (Lal PathLabs) and *Comprehensive Health Checkup* (Tata 1mg) because both include Lipid Profile in their test list. Matching only `item_name` would silently exclude these packages — that is treated as a bug in the search logic.
+A lab package is returned when the searched test name appears in its `included_tests` array. For example, searching "Lipid Profile" returns the *Basic Diabetic Package* (Lal PathLabs) and *Comprehensive Cardiac Care Package* (Tata 1mg) because both include Lipid Profile in their test list. Matching only `item_name` would silently exclude these packages — that is treated as a bug in the search logic.
 
 ---
 
@@ -117,17 +117,16 @@ GET /api/search?search_query=Lipid%20Profile&pincode=110001
   "results": [
     {
       "id": 101,
-      "provider_name": "Local City Lab",
-      "item_name": "Lipid Profile",
+      "provider_name": "Apollo Diagnostics",
       "item_type": "test",
+      "item_name": "Lipid Profile",
       "included_tests": [],
-      "pricing": { "mrp": 600, "offer_price": 450 },
-      "logistics": { "home_collection": false, "home_collection_fee": 0 },
-      "report_tat_hours": 24,
-      "nabl_accredited": false,
-      "available_pincodes": ["110001", "110002"],
-      "total_final_price": 450,
-      "savings": 150
+      "available_pincodes": ["110001", "110002", "110011"],
+      "pricing": { "mrp": 1000, "offer_price": 800 },
+      "logistics": { "home_collection": true, "home_collection_fee": 100, "report_tat_hours": 24 },
+      "nabl_accredited": true,
+      "total_final_price": 900,
+      "savings": 200
     }
     ...
   ]
@@ -158,7 +157,7 @@ Zero results returns 200 (not 404) because the search endpoint itself was found 
 
 ```bash
 # Clone and install
-git clone <your-repo-url>
+git clone https://github.com/Keerthisingh12/medscanner-lab.git
 cd medscanner-mini-lab-aggregator
 npm run install:all
 
@@ -198,13 +197,13 @@ npm test          # from root, or: npm test --prefix backend
 
 | # | Scenario | Expected |
 |---|----------|----------|
-| TC1 | Lipid Profile + 110001 | 4 results: Local City Lab 450, Apollo 900, Lal PathLabs 1650, Tata 1mg 1999 |
+| TC1 | Lipid Profile + 110001 | 4 results: Local City Lab 450, Apollo Diagnostics 900, Lal PathLabs (Basic Diabetic Package) 1650, Tata 1mg (Comprehensive Cardiac Care Package) 1999 |
 | TC2 | Lipid Profile + 560034 | 2 results: Lal PathLabs 1650, Tata 1mg 1999 |
 | TC3 | MRI Brain + 560034 | 1 result: Local Scan Centre 4200 |
 | TC4 | Lipid Profile + 999999 | 0 results (pincode not serviced) |
 | TC5 | Unknown Test + 110001 | 0 results (no match) |
 | TC6 | lipid profile / LIPID PROFILE / Lipid-Profile | Same 4 results as TC1 |
-| TC7 | Packages returned via included_tests | Lal PathLabs and Tata 1mg show item_type=package |
+| TC7 | Packages returned via included_tests | Lal PathLabs (Basic Diabetic Package) and Tata 1mg (Comprehensive Cardiac Care Package) show item_type=package |
 | V1  | Missing search_query | 400 |
 | V2  | Whitespace-only query | 400 |
 | V3  | Missing pincode | 400 |
@@ -214,7 +213,7 @@ npm test          # from root, or: npm test --prefix backend
 | DI2 | No source mutation | No total_final_price/savings on raw records after search |
 | P1  | Price derivation | Apollo: 800+100=900; savings=200 |
 
-**Actual test run result:** 22/22 tests pass.
+**Actual test run result:** 23/23 tests pass.
 
 ---
 
