@@ -157,7 +157,7 @@ Zero results returns 200 (not 404) because the search endpoint itself was found 
 ```bash
 # Clone and install
 git clone https://github.com/Keerthisingh12/medscanner-lab.git
-cd medscanner-mini-lab-aggregator
+cd medscanner-lab
 npm run install:all
 
 # Terminal 1 — backend (port 5001)
