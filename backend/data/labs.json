@@ -1,28 +1,28 @@
 [
   {
-    "id": "101",
+    "id": 101,
     "provider_name": "Apollo Diagnostics",
     "item_type": "test",
     "item_name": "Lipid Profile",
-    "included_tests": ["Lipid Profile"],
+    "included_tests": [],
     "available_pincodes": ["110001", "110002", "110011"],
     "pricing": { "mrp": 1000, "offer_price": 800 },
     "logistics": { "home_collection": true, "home_collection_fee": 100, "report_tat_hours": 24 },
     "nabl_accredited": true
   },
   {
-    "id": "102",
+    "id": 102,
     "provider_name": "Local City Lab",
     "item_type": "test",
     "item_name": "Lipid Profile",
-    "included_tests": ["Lipid Profile"],
+    "included_tests": [],
     "available_pincodes": ["110001"],
     "pricing": { "mrp": 600, "offer_price": 450 },
     "logistics": { "home_collection": false, "home_collection_fee": 0, "report_tat_hours": 12 },
     "nabl_accredited": false
   },
   {
-    "id": "103",
+    "id": 103,
     "provider_name": "Tata 1mg",
     "item_type": "package",
     "item_name": "Comprehensive Cardiac Care Package",
@@ -33,7 +33,7 @@
     "nabl_accredited": true
   },
   {
-    "id": "104",
+    "id": 104,
     "provider_name": "Lal PathLabs",
     "item_type": "package",
     "item_name": "Basic Diabetic Package",
@@ -44,11 +44,11 @@
     "nabl_accredited": true
   },
   {
-    "id": "105",
+    "id": 105,
     "provider_name": "Local Scan Centre",
     "item_type": "test",
     "item_name": "MRI Brain",
-    "included_tests": ["MRI Brain"],
+    "included_tests": [],
     "available_pincodes": ["560034"],
     "pricing": { "mrp": 8000, "offer_price": 4200 },
     "logistics": { "home_collection": false, "home_collection_fee": 0, "report_tat_hours": 4 },

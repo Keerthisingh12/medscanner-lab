@@ -244,11 +244,11 @@ describe('Validation – 400 errors', () => {
 // Data integrity – labs.json must not be mutated by searches
 // ─────────────────────────────────────────────────────────────────
 describe('Data integrity', () => {
-  it('labs.json has exactly 5 records with string ids "101"–"105"', () => {
+  it('labs.json has exactly 5 records with numeric ids 101–105', () => {
     const labs = JSON.parse(readFileSync(DATA_PATH, 'utf8'));
     assert.equal(labs.length, 5);
-    const ids = labs.map((l) => l.id).sort();
-    assert.deepEqual(ids, ['101', '102', '103', '104', '105']);
+    const ids = labs.map((l) => l.id).sort((a, b) => a - b);
+    assert.deepEqual(ids, [101, 102, 103, 104, 105]);
   });
 
   it('source records are not mutated after a search (no derived fields on disk)', async () => {
