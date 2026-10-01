@@ -1,24 +1,28 @@
 /**
  * search.test.js
  * Backend tests using Node's built-in node:test + supertest.
- * Covers all 7 required test cases plus validation edge cases.
+ * All expected values derived from the official assignment PDF data (ids "101"–"105").
+ *
+ * Key derived values (total_final_price = offer_price + home_collection_fee):
+ *   Apollo (101):     800 + 100 = 900     pincode: 110001, 110002, 110011
+ *   Local City Lab (102): 450 + 0  = 450  pincode: 110001 only
+ *   Tata 1mg (103):   1999 + 0  = 1999    pincode: 110001, 110002, 560034, 560035
+ *   Lal PathLabs (104): 1500 + 150 = 1650 pincode: 110001, 560034
+ *   Local Scan Centre (105): 4200 + 0 = 4200  pincode: 560034 only
+ *
+ * TC1 Lipid Profile + 110001: 102(450), 101(900), 104(1650), 103(1999)
+ * TC2 Lipid Profile + 560034: 104(1650), 103(1999)  — 101 and 102 excluded
+ * TC3 MRI Brain + 560034:     105(4200)
  */
 
-import { describe, it, before, after } from 'node:test';
+import { describe, it, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import supertest from 'supertest';
 import { app, loadData } from '../src/app.js';
-import {
-  normalize,
-  filterByPincode,
-  matchSearch,
-  enrichWithPricing,
-  sortByFinalPrice,
-  searchLabs,
-} from '../src/searchService.js';
+import { normalize } from '../src/searchService.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = resolve(__dirname, '../data/labs.json');
@@ -32,14 +36,15 @@ before(async () => {
 
 // ─────────────────────────────────────────────────────────────────
 // TC1: Lipid Profile + 110001
+// All 4 providers service this pincode and contain "Lipid Profile".
 // Expected order by total_final_price ASC:
-//   Local City Lab  450+0=450
-//   Apollo          800+100=900
-//   Lal PathLabs    1600+50=1650  (package, via included_tests)
-//   Tata 1mg        1999+0=1999   (package, via included_tests)
+//   Local City Lab  (102): 450+0   = 450
+//   Apollo          (101): 800+100 = 900
+//   Lal PathLabs    (104): 1500+150= 1650  (package, via included_tests)
+//   Tata 1mg        (103): 1999+0  = 1999  (package, via included_tests)
 // ─────────────────────────────────────────────────────────────────
 describe('TC1 – Lipid Profile + 110001', () => {
-  it('returns 4 results in correct order', async () => {
+  it('returns 4 results in correct price order', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=110001'
     );
@@ -62,10 +67,12 @@ describe('TC1 – Lipid Profile + 110001', () => {
 
 // ─────────────────────────────────────────────────────────────────
 // TC2: Lipid Profile + 560034
-// Only Lal PathLabs (1650) and Tata 1mg (1999) service this pincode.
+// Only Lal PathLabs (104) and Tata 1mg (103) service pincode 560034.
+// Local City Lab (102) pincode = ["110001"] only → excluded.
+// Apollo (101) pincode = ["110001","110002","110011"] → excluded.
 // ─────────────────────────────────────────────────────────────────
 describe('TC2 – Lipid Profile + 560034', () => {
-  it('returns Lal PathLabs then Tata 1mg', async () => {
+  it('returns Lal PathLabs (1650) then Tata 1mg (1999)', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=560034'
     );
@@ -79,7 +86,7 @@ describe('TC2 – Lipid Profile + 560034', () => {
     ]);
   });
 
-  it('excludes Local City Lab and Apollo (wrong pincode)', async () => {
+  it('excludes Local City Lab and Apollo Diagnostics (wrong pincode)', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=560034'
     );
@@ -90,7 +97,7 @@ describe('TC2 – Lipid Profile + 560034', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────
-// TC3: MRI Brain + 560034 -> Local Scan Centre, 4200
+// TC3: MRI Brain + 560034 → Local Scan Centre (105), total 4200
 // ─────────────────────────────────────────────────────────────────
 describe('TC3 – MRI Brain + 560034', () => {
   it('returns Local Scan Centre with total_final_price 4200', async () => {
@@ -105,10 +112,10 @@ describe('TC3 – MRI Brain + 560034', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────
-// TC4: Lipid Profile + 999999 -> count 0 (pincode not serviced)
+// TC4: Lipid Profile + 999999 → no provider services this pincode
 // ─────────────────────────────────────────────────────────────────
 describe('TC4 – Lipid Profile + 999999', () => {
-  it('returns count 0 with 200 status', async () => {
+  it('returns 200 with count 0 and empty results', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=999999'
     );
@@ -119,10 +126,10 @@ describe('TC4 – Lipid Profile + 999999', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────
-// TC5: Unknown Test + 110001 -> count 0 (no match)
+// TC5: Unknown Test + 110001 → no match in any item_name or included_tests
 // ─────────────────────────────────────────────────────────────────
 describe('TC5 – Unknown Test + 110001', () => {
-  it('returns count 0 with 200 status', async () => {
+  it('returns 200 with count 0', async () => {
     const res = await request.get(
       '/api/search?search_query=Unknown%20Test&pincode=110001'
     );
@@ -133,7 +140,7 @@ describe('TC5 – Unknown Test + 110001', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────
-// TC6: Case/format variants all return the same results
+// TC6: Normalization – all variants give identical results to "Lipid Profile"
 // ─────────────────────────────────────────────────────────────────
 describe('TC6 – Normalization: case and format variants', () => {
   const variants = [
@@ -144,18 +151,20 @@ describe('TC6 – Normalization: case and format variants', () => {
   ];
 
   for (const q of variants) {
-    it(`"${q}" returns the same 4 results as canonical form`, async () => {
+    it(`"${q}" → same 4 results as canonical form (110001)`, async () => {
       const res = await request.get(
         `/api/search?search_query=${encodeURIComponent(q)}&pincode=110001`
       );
       assert.equal(res.status, 200);
       assert.equal(res.body.count, 4);
-      const prices = res.body.results.map((r) => r.total_final_price);
-      assert.deepEqual(prices, [450, 900, 1650, 1999]);
+      assert.deepEqual(
+        res.body.results.map((r) => r.total_final_price),
+        [450, 900, 1650, 1999]
+      );
     });
   }
 
-  it('normalize() lowercases, trims, collapses hyphens to spaces', () => {
+  it('normalize() lowercases, trims, collapses hyphens/underscores to spaces', () => {
     assert.equal(normalize('  LIPID-profile '), 'lipid profile');
     assert.equal(normalize('MRI--Brain'), 'mri brain');
     assert.equal(normalize('Blood_Sugar'), 'blood sugar');
@@ -164,10 +173,11 @@ describe('TC6 – Normalization: case and format variants', () => {
 
 // ─────────────────────────────────────────────────────────────────
 // TC7: Packages returned via included_tests
-// ids 103 (Lal PathLabs) and 104 (Tata 1mg) must appear for Lipid Profile
+// Tata 1mg (103) and Lal PathLabs (104) contain "Lipid Profile"
+// in their included_tests; both must appear in Lipid Profile results.
 // ─────────────────────────────────────────────────────────────────
 describe('TC7 – Packages returned via included_tests', () => {
-  it('includes Lal PathLabs (package) and Tata 1mg (package) in 110001 results', async () => {
+  it('Tata 1mg and Lal PathLabs (packages) appear in 110001 results', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=110001'
     );
@@ -176,7 +186,7 @@ describe('TC7 – Packages returned via included_tests', () => {
     assert.deepEqual(packageNames, ['Lal PathLabs', 'Tata 1mg']);
   });
 
-  it('package records carry item_type = "package"', async () => {
+  it('package records carry item_type="package" and a non-empty included_tests', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=110001'
     );
@@ -188,16 +198,16 @@ describe('TC7 – Packages returned via included_tests', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────
-// Validation: 400 for bad inputs
+// Validation – 400 errors for bad inputs
 // ─────────────────────────────────────────────────────────────────
 describe('Validation – 400 errors', () => {
-  it('missing search_query -> 400', async () => {
+  it('missing search_query → 400', async () => {
     const res = await request.get('/api/search?pincode=110001');
     assert.equal(res.status, 400);
     assert.ok(res.body.error?.code);
   });
 
-  it('whitespace-only search_query -> 400', async () => {
+  it('whitespace-only search_query → 400', async () => {
     const res = await request.get(
       '/api/search?search_query=%20%20&pincode=110001'
     );
@@ -205,7 +215,7 @@ describe('Validation – 400 errors', () => {
     assert.equal(res.body.error.code, 'MISSING_SEARCH_QUERY');
   });
 
-  it('missing pincode -> 400', async () => {
+  it('missing pincode → 400', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile'
     );
@@ -213,7 +223,7 @@ describe('Validation – 400 errors', () => {
     assert.ok(res.body.error?.code);
   });
 
-  it('pincode "12" (too short) -> 400', async () => {
+  it('pincode "12" (too short) → 400 INVALID_PINCODE', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=12'
     );
@@ -221,7 +231,7 @@ describe('Validation – 400 errors', () => {
     assert.equal(res.body.error.code, 'INVALID_PINCODE');
   });
 
-  it('pincode "abcdef" (non-numeric) -> 400', async () => {
+  it('pincode "abcdef" (non-numeric) → 400 INVALID_PINCODE', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=abcdef'
     );
@@ -231,20 +241,18 @@ describe('Validation – 400 errors', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────
-// Data integrity: labs.json is never mutated
+// Data integrity – labs.json must not be mutated by searches
 // ─────────────────────────────────────────────────────────────────
 describe('Data integrity', () => {
-  it('labs.json has exactly 5 records with ids 101-105', () => {
+  it('labs.json has exactly 5 records with string ids "101"–"105"', () => {
     const labs = JSON.parse(readFileSync(DATA_PATH, 'utf8'));
     assert.equal(labs.length, 5);
-    const ids = labs.map((l) => l.id).sort((a, b) => a - b);
-    assert.deepEqual(ids, [101, 102, 103, 104, 105]);
+    const ids = labs.map((l) => l.id).sort();
+    assert.deepEqual(ids, ['101', '102', '103', '104', '105']);
   });
 
-  it('source data is not mutated after search (no total_final_price on raw records)', async () => {
-    // Run a search (which enriches records in memory)
+  it('source records are not mutated after a search (no derived fields on disk)', async () => {
     await request.get('/api/search?search_query=Lipid%20Profile&pincode=110001');
-    // Re-read from disk and confirm no derived fields were written
     const labs = JSON.parse(readFileSync(DATA_PATH, 'utf8'));
     for (const lab of labs) {
       assert.equal(lab.total_final_price, undefined);
@@ -254,21 +262,30 @@ describe('Data integrity', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────
-// Price derivation
+// Price derivation correctness
 // ─────────────────────────────────────────────────────────────────
 describe('Price derivation', () => {
-  it('total_final_price = offer_price + home_collection_fee', async () => {
+  it('total_final_price = offer_price + home_collection_fee (Apollo: 800+100=900)', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=110001'
     );
     const apollo = res.body.results.find(
       (r) => r.provider_name === 'Apollo Diagnostics'
     );
-    assert.equal(apollo.total_final_price, 900); // 800 + 100
-    assert.equal(apollo.savings, 200); // 1000 - 800
+    assert.equal(apollo.total_final_price, 900);  // 800 + 100
+    assert.equal(apollo.savings, 200);             // 1000 - 800
   });
 
-  it('savings = mrp - offer_price (not total_final_price)', async () => {
+  it('Lal PathLabs fee 150 → total 1650 (1500+150)', async () => {
+    const res = await request.get(
+      '/api/search?search_query=Lipid%20Profile&pincode=110001'
+    );
+    const lal = res.body.results.find((r) => r.provider_name === 'Lal PathLabs');
+    assert.equal(lal.total_final_price, 1650);
+    assert.equal(lal.savings, 700); // 2200 - 1500
+  });
+
+  it('savings = mrp - offer_price for all results (never total_final_price)', async () => {
     const res = await request.get(
       '/api/search?search_query=Lipid%20Profile&pincode=110001'
     );

@@ -82,7 +82,7 @@ export function ResultCard({ lab, isCheapest }) {
           <div className="result-card__meta">
             <span className="result-card__tat">
               <Clock size={12} aria-hidden="true" />
-              Report in {lab.report_tat_hours} hours
+              Report in {lab.logistics.report_tat_hours} hours
             </span>
             {lab.nabl_accredited && <NablBadge />}
           </div>
