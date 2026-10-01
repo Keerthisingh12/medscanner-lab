@@ -113,7 +113,6 @@ GET /api/search?search_query=Lipid%20Profile&pincode=110001
   "query": { "search_query": "Lipid Profile", "pincode": "110001" },
   "count": 4,
   "sorted_by": "total_final_price_asc",
-  "meta": { "test_available_in_other_pincodes": false },
   "results": [
     {
       "id": 101,
