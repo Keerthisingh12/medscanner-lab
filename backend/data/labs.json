@@ -1,0 +1,92 @@
+[
+  {
+    "id": 101,
+    "provider_name": "Local City Lab",
+    "item_name": "Lipid Profile",
+    "item_type": "test",
+    "included_tests": [],
+    "pricing": {
+      "mrp": 600,
+      "offer_price": 450
+    },
+    "logistics": {
+      "home_collection": false,
+      "home_collection_fee": 0
+    },
+    "report_tat_hours": 24,
+    "nabl_accredited": false,
+    "available_pincodes": ["110001", "110002"]
+  },
+  {
+    "id": 102,
+    "provider_name": "Apollo Diagnostics",
+    "item_name": "Lipid Profile",
+    "item_type": "test",
+    "included_tests": [],
+    "pricing": {
+      "mrp": 1000,
+      "offer_price": 800
+    },
+    "logistics": {
+      "home_collection": true,
+      "home_collection_fee": 100
+    },
+    "report_tat_hours": 12,
+    "nabl_accredited": true,
+    "available_pincodes": ["110001", "110002", "400001"]
+  },
+  {
+    "id": 103,
+    "provider_name": "Lal PathLabs",
+    "item_name": "Wellness Basic Package",
+    "item_type": "package",
+    "included_tests": ["Lipid Profile", "Blood Sugar Fasting", "Complete Blood Count"],
+    "pricing": {
+      "mrp": 2000,
+      "offer_price": 1600
+    },
+    "logistics": {
+      "home_collection": true,
+      "home_collection_fee": 50
+    },
+    "report_tat_hours": 24,
+    "nabl_accredited": true,
+    "available_pincodes": ["110001", "560034"]
+  },
+  {
+    "id": 104,
+    "provider_name": "Tata 1mg",
+    "item_name": "Comprehensive Health Checkup",
+    "item_type": "package",
+    "included_tests": ["Lipid Profile", "Thyroid Profile", "Liver Function Test", "Kidney Function Test"],
+    "pricing": {
+      "mrp": 3500,
+      "offer_price": 1999
+    },
+    "logistics": {
+      "home_collection": true,
+      "home_collection_fee": 0
+    },
+    "report_tat_hours": 48,
+    "nabl_accredited": true,
+    "available_pincodes": ["110001", "560034", "400001"]
+  },
+  {
+    "id": 105,
+    "provider_name": "Local Scan Centre",
+    "item_name": "MRI Brain",
+    "item_type": "test",
+    "included_tests": [],
+    "pricing": {
+      "mrp": 5000,
+      "offer_price": 4200
+    },
+    "logistics": {
+      "home_collection": false,
+      "home_collection_fee": 0
+    },
+    "report_tat_hours": 6,
+    "nabl_accredited": true,
+    "available_pincodes": ["560034", "400001"]
+  }
+]

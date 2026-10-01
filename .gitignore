@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+frontend/dist/
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# macOS
+.DS_Store
+
+# Test coverage
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+*.tmp
